@@ -56,11 +56,11 @@ func startRepl(config *Config) {
 
 func validateCommand(command string, args []string) error {
 	switch command {
-	case "help", "exit", "map", "mapb":
+	case "help", "exit", "map", "mapb", "pokedex":
 		if len(args) > 0 {
 			return fmt.Errorf("%v command doesn't accept arguments", command)
 		}
-	case "explore", "catch":
+	case "explore", "catch", "inspect":
 		if len(args) != 1 {
 			return fmt.Errorf("%v command accept exactly 1 argument", command)
 		}

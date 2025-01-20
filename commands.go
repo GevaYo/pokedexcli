@@ -49,6 +49,17 @@ func init() {
 			callback:    commandCatch,
 			args:        []string{},
 		},
+		"inspect": {
+			name:        "inspect",
+			description: "Show details for pokemons in the Pokedex",
+			callback:    commandInspect,
+			args:        []string{},
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Show all of the captured pokemons",
+			callback:    commandPokedex,
+		},
 	}
 }
 
@@ -131,6 +142,39 @@ func commandCatch(config *Config, args []string) error {
 		fmt.Printf("%s was caught!\n", pokemoneName)
 	} else {
 		fmt.Printf("%s escaped!\n", pokemoneName)
+	}
+	return nil
+}
+
+func commandInspect(config *Config, args []string) error {
+	pokemonName := args[0]
+	pokemonData, exists := config.Pokedex.caught[pokemonName]
+	if !exists {
+		fmt.Println("You have not caught that pokemon")
+	} else {
+		fmt.Printf("Name: %s\n", pokemonName)
+		fmt.Printf("Height: %d\n", pokemonData.Height)
+		fmt.Printf("Weight: %d\n", pokemonData.Weight)
+		fmt.Println("Stats:")
+		for _, stat := range pokemonData.Stats {
+			fmt.Printf("  -%s: %d\n", stat.Stat.Name, stat.BaseStat)
+		}
+		fmt.Println("Types:")
+		for _, t := range pokemonData.Types {
+			fmt.Printf("  - %s\n", t.Type.Name)
+		}
+	}
+	return nil
+}
+
+func commandPokedex(config *Config, args []string) error {
+	pokedex := config.Pokedex.caught
+	if len(pokedex) == 0 {
+		return fmt.Errorf("No pokemon were caught")
+	}
+	fmt.Println("Your Pokedex:")
+	for key := range pokedex {
+		fmt.Printf("  - %s\n", key)
 	}
 	return nil
 }
