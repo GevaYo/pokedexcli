@@ -12,6 +12,7 @@ import (
 type Config struct {
 	pokeapiClient *pokeapi.Client
 	pokeCache     *pokecache.Cache
+	Pokedex       *Pokedex
 	nextURL       *string
 	prevURL       *string
 }
@@ -59,7 +60,7 @@ func validateCommand(command string, args []string) error {
 		if len(args) > 0 {
 			return fmt.Errorf("%v command doesn't accept arguments", command)
 		}
-	case "explore":
+	case "explore", "catch":
 		if len(args) != 1 {
 			return fmt.Errorf("%v command accept exactly 1 argument", command)
 		}

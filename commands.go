@@ -119,5 +119,18 @@ func commandExplore(config *Config, args []string) error {
 }
 
 func commandCatch(config *Config, args []string) error {
+	pokemoneName := args[0]
+	pokemonData, err := config.pokeapiClient.FetchPokemonByName(&pokemoneName)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemoneName)
+	isCaught := config.Pokedex.AttemptCatch(pokemonData)
+	if isCaught {
+		config.Pokedex.AddToPokedex(pokemoneName, pokemonData)
+		fmt.Printf("%s was caught!\n", pokemoneName)
+	} else {
+		fmt.Printf("%s escaped!\n", pokemoneName)
+	}
 	return nil
 }

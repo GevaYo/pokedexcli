@@ -11,6 +11,7 @@ func main() {
 	println("@~@~@~@~@~@~@~@~@~@~@~@~@")
 	config := Config{
 		pokeapiClient: pokeapi.NewClient(pokecache.NewCache(10 * time.Second)),
+		Pokedex:       NewPokedex(),
 	}
 	startRepl(&config)
 }
