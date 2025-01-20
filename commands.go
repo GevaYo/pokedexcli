@@ -38,13 +38,18 @@ func init() {
 			callback:    commandMapB,
 		},
 		"explore": {
-			name:        "mapb",
+			name:        "explore",
 			description: "Display the previous list of location from the Pokemon world",
 			callback:    commandExplore,
 			args:        []string{},
 		},
+		"catch": {
+			name:        "catch",
+			description: "Catching Pokemon adds them to the user's Pokedex",
+			callback:    commandCatch,
+			args:        []string{},
+		},
 	}
-
 }
 
 func commandExit(config *Config, args []string) error {
@@ -100,5 +105,19 @@ func commandMapB(config *Config, args []string) error {
 }
 
 func commandExplore(config *Config, args []string) error {
+	locationName := args[0]
+	pokemons, err := config.pokeapiClient.ListPokemonsInLocationArea(&locationName)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Exploring %s...\nFound Pokemon:\n", locationName)
+	for _, pokemon := range pokemons.PokemonEncounters {
+		fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
+	}
+
+	return nil
+}
+
+func commandCatch(config *Config, args []string) error {
 	return nil
 }

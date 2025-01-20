@@ -25,15 +25,24 @@ func cleanInput(text string) []string {
 }
 
 func startRepl(config *Config) {
-	fmt.Print("Pokedex > ")
+	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		input := getInput()
-		if input == "" {
+		fmt.Print("Pokedex > ")
+		input := getInput(scanner)
+		cleanInput := cleanInput(input)
+		if len(cleanInput) == 0 {
 			continue
 		}
-		cleanInput := cleanInput(input)
-		command, args := parseInput(cleanInput)
+		command := cleanInput[0]
+		args := []string{}
+		if len(cleanInput) > 1 {
+			args = parseArgs(cleanInput)
+		}
 		if cmd, exists := commands[command]; exists {
+			if err := validateCommand(command, args); err != nil {
+				fmt.Println(err)
+				continue
+			}
 			err := cmd.callback(config, args)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Error executing command: %s ", cmd.name))
@@ -41,16 +50,27 @@ func startRepl(config *Config) {
 		} else {
 			fmt.Println("Unknown command")
 		}
-		fmt.Print("Pokedex > ")
 	}
 }
 
-func getInput() string {
-	scanner := bufio.NewScanner(os.Stdin)
+func validateCommand(command string, args []string) error {
+	switch command {
+	case "help", "exit", "map", "mapb":
+		if len(args) > 0 {
+			return fmt.Errorf("%v command doesn't accept arguments", command)
+		}
+	case "explore":
+		if len(args) != 1 {
+			return fmt.Errorf("%v command accept exactly 1 argument", command)
+		}
+	}
+	return nil
+}
+func getInput(scanner *bufio.Scanner) string {
 	scanner.Scan()
 	return scanner.Text()
 }
 
-func parseInput(inputs []string) (string, []string) {
-	return inputs[0], inputs[1:]
+func parseArgs(inputs []string) []string {
+	return inputs[1:]
 }

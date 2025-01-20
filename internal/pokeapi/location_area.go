@@ -46,5 +46,43 @@ func (c *Client) ListLocationAreas(pageURL *string) (LocationAreaResponse, error
 	}
 
 	return locationResp, nil
+}
 
+func (c *Client) ListPokemonsInLocationArea(location *string) (LocationAreaEncounters, error) {
+	if location == nil {
+		return LocationAreaEncounters{}, fmt.Errorf("Missing location name")
+	}
+	pageURL := c.baseURL + "/location-area/" + *location
+	locationAreaEncounters := LocationAreaEncounters{}
+	if data, found := c.cache.Get(pageURL); found {
+		err := json.Unmarshal(data, &locationAreaEncounters)
+		if err != nil {
+			fmt.Println(err)
+			return LocationAreaEncounters{}, err
+		}
+		return locationAreaEncounters, nil
+	}
+	req, err := http.NewRequest("GET", pageURL, nil)
+	if err != nil {
+		return LocationAreaEncounters{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return LocationAreaEncounters{}, err
+	}
+	defer resp.Body.Close()
+
+	dat, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return LocationAreaEncounters{}, err
+	}
+
+	c.cache.Add(pageURL, dat)
+	err = json.Unmarshal(dat, &locationAreaEncounters)
+	if err != nil {
+		return LocationAreaEncounters{}, err
+	}
+
+	return locationAreaEncounters, nil
 }
